@@ -22,7 +22,7 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 |---|---|
 | [animate](skills/animate) | Build an animation from scratch, making the decisions in the order that determines whether it feels right — should it animate at all, what purpose, which tool,… |
 | [animation-vocabulary](skills/animation-vocabulary) | Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term ("the bouncy thing when a popover opens" → Pop… |
-| [apple-design](skills/apple-design) | > Cross-platform UI/UX design reviewer grounded in Apple Human Interface Guidelines principles. Use this skill to audit, review, critique, or improve any UI/UX… |
+| [apple-design](skills/apple-design) | Cross-platform UI/UX design reviewer grounded in Apple Human Interface Guidelines principles. Use this skill to audit, review, critique, or improve any UI/UX… |
 | [brainstorming](skills/brainstorming) | You MUST use this before any creative work - creating features, building components, adding functionality, or modifying behavior. Explores user intent,… |
 | [dispatching-parallel-agents](skills/dispatching-parallel-agents) | Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies |
 | [executing-plans](skills/executing-plans) | Use when you have a written implementation plan to execute in a separate session with review checkpoints |
