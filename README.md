@@ -1,24 +1,130 @@
 # Claude Skills
 
-Cristoffe Jensch's personal collection of Claude skills and plugins, gathered in one place.
+De persoonlijke verzameling Claude-skills en -plugins van Cristoffe Jensch, op één plek.
 
-## Layout
+**Inhoud:** 13 losse skills en 78 plugins (samen 396 skills).
 
-- `skills/` — standalone skills, one folder each with a `SKILL.md`
-- `plugins/` — installed plugins; each contains a `skills/` folder (plus agents, commands, scripts where the plugin ships them)
+## Indeling
 
-## Using a skill
+- `skills/` — losse skills, elk in een eigen map met een `SKILL.md`
+- `plugins/` — plugins; elke plugin heeft een map `skills/` en soms ook agents, commands en scripts
+- `.claude-plugin/marketplace.json` — maakt van deze repo een plugin-marketplace, zodat je de plugins in Claude Code met één commando installeert
 
-- **Claude Code:** copy a skill folder into `~/.claude/skills/` (personal) or `.claude/skills/` (project). For a plugin, copy its folder and point Claude Code at it as a local plugin.
-- **claude.ai:** zip a single skill folder and upload it under Settings → Capabilities → Skills.
+## Installatiehandleiding
 
-## Licensing
+Er zijn drie manieren, afhankelijk van waar je Claude gebruikt:
 
-Third-party plugins keep their original licenses (see each plugin's `LICENSE` / `README` where present). This repo is a personal backup — check a plugin's license before republishing it.
+| Waar | Wat installeer je | Methode |
+|---|---|---|
+| Claude Code | Plugins | [A. Via de marketplace](#a-plugins-installeren-in-claude-code-via-de-marketplace) |
+| Claude Code | Losse skills | [B. Kopiëren naar je skills-map](#b-losse-skills-installeren-in-claude-code) |
+| claude.ai (web, desktop, mobiel) | Losse skills of één skill uit een plugin | [C. Uploaden als ZIP](#c-skills-uploaden-in-claudeai) |
 
-## Standalone skills (13)
+### Voorbereiding
 
-| Skill | What it does |
+1. **Zorg dat je toegang hebt tot deze repo.** Hij is privé, dus je computer moet bij GitHub zijn ingelogd. Controleer dat met:
+   ```bash
+   git ls-remote https://github.com/costello88/claude-skills
+   ```
+   Zie je een lijst met regels (geen foutmelding)? Dan is het goed. Krijg je een fout, log dan in met `gh auth login` (GitHub CLI) of stel een SSH-sleutel in.
+2. **Installeer Claude Code** (alleen nodig voor methode A en B) en controleer de versie:
+   ```bash
+   claude --version
+   ```
+
+### A. Plugins installeren in Claude Code via de marketplace
+
+1. **Voeg de marketplace toe** (eenmalig). Typ in je terminal:
+   ```bash
+   claude plugin marketplace add costello88/claude-skills
+   ```
+   Je ziet: `Successfully added marketplace: costello88-skills`.
+2. **Bekijk welke plugins er zijn.** Start Claude Code met `claude` en typ `/plugin`. Kies de marketplace **costello88-skills** om alle 78 plugins te zien.
+3. **Installeer een plugin.** Gebruik de naam uit de lijst hieronder, bijvoorbeeld:
+   ```bash
+   claude plugin install linkedin-skills@costello88-skills
+   ```
+   Je ziet: `Successfully installed plugin: linkedin-skills@costello88-skills`.
+4. **Herstart of herlaad.** Start een nieuwe sessie, of typ `/reload-plugins` in een lopende sessie.
+5. **Controleer of het werkt:**
+   ```bash
+   claude plugin list
+   ```
+   De plugin staat erin met `Status: ✔ enabled`. Skills van een plugin roep je aan met de pluginnaam ervoor, bijvoorbeeld `/linkedin-skills:linkedin-post-writer`.
+6. **Updates ophalen** nadat de repo is bijgewerkt:
+   ```bash
+   claude plugin marketplace update costello88-skills
+   ```
+
+Verwijderen kan met `claude plugin uninstall <naam>@costello88-skills`.
+
+### B. Losse skills installeren in Claude Code
+
+1. **Clone de repo:**
+   ```bash
+   git clone https://github.com/costello88/claude-skills.git
+   cd claude-skills
+   ```
+2. **Kies het bereik:**
+   - Voor al je projecten: `~/.claude/skills/`
+   - Alleen voor één project: `.claude/skills/` in de map van dat project
+3. **Kopieer de skills.** Alle losse skills tegelijk (macOS/Linux):
+   ```bash
+   mkdir -p ~/.claude/skills
+   cp -R skills/* ~/.claude/skills/
+   ```
+   Of één skill, bijvoorbeeld:
+   ```bash
+   cp -R skills/animate ~/.claude/skills/
+   ```
+   Op Windows (PowerShell):
+   ```powershell
+   New-Item -ItemType Directory -Force "$env:USERPROFILE\.claude\skills"
+   Copy-Item -Recurse skills\* "$env:USERPROFILE\.claude\skills\"
+   ```
+4. **Start Claude Code opnieuw.** De skills worden vanzelf gebruikt als je vraag erbij past, of je roept ze aan met `/<skillnaam>`, bijvoorbeeld `/animate`.
+
+### C. Skills uploaden in claude.ai
+
+claude.ai kent geen plugins, alleen losse skills. Je uploadt elke skill apart als ZIP.
+
+1. **Zet code-uitvoering aan.** Ga in claude.ai naar **Settings → Capabilities** en zet *code execution and file creation* aan. Skills werken niet zonder.
+2. **Maak een ZIP van de skillmap.** De ZIP moet de map zelf bevatten, en de mapnaam moet gelijk zijn aan de naam van de skill:
+   ```bash
+   cd skills
+   zip -r animate.zip animate
+   ```
+   Een skill uit een plugin werkt hetzelfde, bijvoorbeeld:
+   ```bash
+   cd plugins/linkedin-skills/skills
+   zip -r linkedin-post-writer.zip linkedin-post-writer
+   ```
+   Op Windows: klik met rechts op de map → **Comprimeren naar ZIP-bestand**.
+3. **Upload.** Scroll in **Settings → Capabilities** naar **Skills** en klik op **Upload skill**. Kies je ZIP.
+4. **Zet de skill aan.** De skill verschijnt in je lijst; zet de schakelaar aan.
+
+Let op: skills die afhankelijk zijn van agents, hooks of MCP-servers van hun plugin werken in claude.ai mogelijk niet volledig. Gebruik die via Claude Code (methode A).
+
+### Problemen oplossen
+
+| Melding | Oplossing |
+|---|---|
+| `Repository not found` of `Authentication failed` bij het toevoegen | Je bent niet ingelogd bij GitHub. Voer `gh auth login` uit en probeer opnieuw. |
+| `Plugin "…" not found in marketplace` | Gebruik exact de naam uit de tabel hieronder. Let op: *self-improving-agent* heet `si`. |
+| Skill verschijnt niet in Claude Code | Start een nieuwe sessie of typ `/reload-plugins`. Controleer dat de map een `SKILL.md` bevat. |
+| Upload in claude.ai mislukt | Controleer dat de ZIP de map bevat (niet los de bestanden) en dat de mapnaam gelijk is aan de skillnaam. |
+
+## Licenties
+
+Plugins van derden houden hun eigen licentie (zie de `LICENSE` of `README` in elke plugin). Deze repo is een persoonlijke back-up: controleer de licentie voordat je een plugin opnieuw publiceert.
+
+## Overzicht van alle skills
+
+De beschrijvingen staan in het Engels, net als de skills zelf: Claude gebruikt die tekst om te bepalen wanneer een skill van toepassing is.
+
+### Losse skills (13)
+
+| Skill | Wat het doet |
 |---|---|
 | [animate](skills/animate) | Build an animation from scratch, making the decisions in the order that determines whether it feels right — should it animate at all, what purpose, which tool,… |
 | [animation-vocabulary](skills/animation-vocabulary) | Reverse-lookup glossary that turns a vague description of a web animation or motion effect into its exact term ("the bouncy thing when a popover opens" → Pop… |
@@ -34,19 +140,21 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 | [subagent-driven-development](skills/subagent-driven-development) | Use when executing implementation plans with independent tasks in the current session |
 | [writing-plans](skills/writing-plans) | Use when you have a spec or requirements for a multi-step task, before touching code |
 
-## Plugins (78 plugins, 383 skills)
+### Plugins (78)
 
-<details><summary><b>a11y-audit</b> — 1 skill</summary>
+Installeren: `claude plugin install <installatienaam>@costello88-skills`
 
-| Skill | What it does |
+<details><summary><b>a11y-audit</b> — installatienaam <code>a11y-audit</code>, 1 skill</summary>
+
+| Skill | Wat het doet |
 |---|---|
 | [a11y-audit](plugins/a11y-audit/skills/a11y-audit) | Accessibility audit skill for scanning, fixing, and verifying WCAG 2.2 Level A and AA compliance across React, Next.js, Vue, Angular, Svelte, and plain HTML… |
 
 </details>
 
-<details><summary><b>agenthub</b> — 8 skills</summary>
+<details><summary><b>agenthub</b> — installatienaam <code>agenthub</code>, 8 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [agenthub](plugins/agenthub/skills/agenthub) | Multi-agent collaboration plugin that spawns N parallel subagents competing on the same task via git worktree isolation. Agents work independently, results are… |
 | [board](plugins/agenthub/skills/board) | Read, write, and browse the AgentHub message board for agent coordination. |
@@ -59,25 +167,25 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>agile-product-owner</b> — 1 skill</summary>
+<details><summary><b>agile-product-owner</b> — installatienaam <code>agile-product-owner</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [agile-product-owner](plugins/agile-product-owner/skills/agile-product-owner) | Agile product ownership for backlog management and sprint execution. Covers user story writing, acceptance criteria, sprint planning, and velocity tracking.… |
 
 </details>
 
-<details><summary><b>apple-hig-expert</b> — 1 skill</summary>
+<details><summary><b>apple-hig-expert</b> — installatienaam <code>apple-hig-expert</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [apple-hig-expert](plugins/apple-hig-expert/skills/apple-hig-expert) | Expert guidance on Apple Human Interface Guidelines (HIG). Covers iOS, macOS, and visionOS with 2026 Liquid Glass aesthetics and accessibility-first design. |
 
 </details>
 
-<details><summary><b>autoresearch-agent</b> — 6 skills</summary>
+<details><summary><b>autoresearch-agent</b> — installatienaam <code>autoresearch-agent</code>, 6 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [autoresearch-agent](plugins/autoresearch-agent/skills/autoresearch-agent) | Autonomous experiment loop that optimizes any file by a measurable metric. Inspired by Karpathy's autoresearch. The agent edits a target file, runs a fixed… |
 | [loop](plugins/autoresearch-agent/skills/loop) | Start an autonomous experiment loop with user-selected interval (10min, 1h, daily, weekly, monthly). Uses CronCreate for scheduling. |
@@ -88,17 +196,17 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>brag</b> — 1 skill</summary>
+<details><summary><b>brag</b> — installatienaam <code>brag</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [brag](plugins/brag/skills/brag) | Turn the current project website into a short, polished, shareable launch video using Hyperframes. Use when someone says "/brag", "let's brag about this",… |
 
 </details>
 
-<details><summary><b>business-growth-skills</b> — 5 skills</summary>
+<details><summary><b>business-growth-skills</b> — installatienaam <code>business-growth-skills</code>, 5 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [business-growth-skills](plugins/business-growth-skills/skills/business-growth-skills) | 4 business growth agent skills and plugins for Claude Code, Codex, Gemini CLI, Cursor, OpenClaw. Customer success (health scoring, churn), sales engineer… |
 | [contract-and-proposal-writer](plugins/business-growth-skills/skills/contract-and-proposal-writer) | Contract & Proposal Writer |
@@ -108,9 +216,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>c-level-agents</b> — 20 skills</summary>
+<details><summary><b>c-level-agents</b> — installatienaam <code>c-level-agents</code>, 20 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [boardroom](plugins/c-level-agents/skills/boardroom) | /cs:boardroom <brief> — 6-phase multi-role deliberation across the C-suite with Phase 2 isolation, critic pre-screen, and synthesis. Outputs a board memo. |
 | [brief](plugins/c-level-agents/skills/brief) | /cs:brief <topic> — Generate a one-page strategy brief from an office-hours intake. First step in the strategic sprint pipeline. |
@@ -135,74 +243,74 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>chaos-engineering</b> — 1 skill</summary>
+<details><summary><b>chaos-engineering</b> — installatienaam <code>chaos-engineering</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [chaos-engineering](plugins/chaos-engineering/skills/chaos-engineering) | Use when planning, running, or learning from chaos engineering experiments. Triggers on "chaos experiment", "fault injection", "gameday", "resilience test",… |
 
 </details>
 
-<details><summary><b>chief-ai-officer-advisor</b> — 1 skill</summary>
+<details><summary><b>chief-ai-officer-advisor</b> — installatienaam <code>chief-ai-officer-advisor</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [chief-ai-officer-advisor](plugins/chief-ai-officer-advisor/skills/chief-ai-officer-advisor) | Chief AI Officer advisory for startups: model build-vs-buy decisions (API vs fine-tune vs in-house), AI risk classification under EU AI Act + US state… |
 
 </details>
 
-<details><summary><b>chief-data-officer-advisor</b> — 1 skill</summary>
+<details><summary><b>chief-data-officer-advisor</b> — installatienaam <code>chief-data-officer-advisor</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [chief-data-officer-advisor](plugins/chief-data-officer-advisor/skills/chief-data-officer-advisor) | Chief Data Officer advisory for startups: AI training data rights and consent provenance, data product strategy (warehouse vs lakehouse vs mesh, build-vs-buy),… |
 
 </details>
 
-<details><summary><b>code-to-prd</b> — 1 skill</summary>
+<details><summary><b>code-to-prd</b> — installatienaam <code>code-to-prd</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [code-to-prd](plugins/code-to-prd/skills/code-to-prd) | Reverse-engineer any codebase into a complete Product Requirements Document (PRD). Analyzes routes, components, state management, API integrations, and user… |
 
 </details>
 
-<details><summary><b>code-tour</b> — 1 skill</summary>
+<details><summary><b>code-tour</b> — installatienaam <code>code-tour</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [code-tour](plugins/code-tour/skills/code-tour) | Use when the user asks to create a CodeTour .tour file — persona-targeted, step-by-step walkthroughs that link to real files and line numbers. Trigger for:… |
 
 </details>
 
-<details><summary><b>codebase-mapper</b> — 2 skills</summary>
+<details><summary><b>codebase-mapper</b> — installatienaam <code>codebase-mapper</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [map-codebase](plugins/codebase-mapper/skills/map-codebase) | Create a self-maintaining codebase map in .claude/.codebase-info/. Use to map, document, analyze, or onboard a codebase, including a new project. |
 | [update-codebase-map](plugins/codebase-mapper/skills/update-codebase-map) | Refresh an existing .claude/.codebase-info/ map after code changes. Use for stale codebase or architecture docs; use map-codebase to create one. |
 
 </details>
 
-<details><summary><b>data-quality-auditor</b> — 1 skill</summary>
+<details><summary><b>data-quality-auditor</b> — installatienaam <code>data-quality-auditor</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [data-quality-auditor](plugins/data-quality-auditor/skills/data-quality-auditor) | Audit datasets for completeness, consistency, accuracy, and validity. Profile data distributions, detect anomalies and outliers, surface structural issues, and… |
 
 </details>
 
-<details><summary><b>demo-video</b> — 1 skill</summary>
+<details><summary><b>demo-video</b> — installatienaam <code>demo-video</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [demo-video](plugins/demo-video/skills/demo-video) | Use when the user asks to create a demo video, product walkthrough, feature showcase, animated presentation, marketing video, or GIF from screenshots or scene… |
 
 </details>
 
-<details><summary><b>design</b> — 7 skills</summary>
+<details><summary><b>design</b> — installatienaam <code>design</code>, 7 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [accessibility-review](plugins/design/skills/accessibility-review) | Run a WCAG 2.1 AA accessibility audit on a design or page. Trigger with "audit accessibility", "check a11y", "is this accessible?", or when reviewing a design… |
 | [design-critique](plugins/design/skills/design-critique) | Get structured design feedback on usability, hierarchy, and consistency. Trigger with "review this design", "critique this mockup", "what do you think of this… |
@@ -214,17 +322,17 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>docker-development</b> — 1 skill</summary>
+<details><summary><b>docker-development</b> — installatienaam <code>docker-development</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [docker-development](plugins/docker-development/skills/docker-development) | Docker and container development agent skill and plugin for Dockerfile optimization, docker-compose orchestration, multi-stage builds, and container security… |
 
 </details>
 
-<details><summary><b>engineering</b> — 10 skills</summary>
+<details><summary><b>engineering</b> — installatienaam <code>engineering</code>, 10 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [architecture](plugins/engineering/skills/architecture) | Create or evaluate an architecture decision record (ADR). Use when choosing between technologies (e.g., Kafka vs SQS), documenting a design decision with… |
 | [code-review](plugins/engineering/skills/code-review) | Review code changes for security, performance, and correctness. Trigger with a PR URL or diff, "review this before I merge", "is this code safe?", or when… |
@@ -239,18 +347,18 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>exa</b> — 2 skills</summary>
+<details><summary><b>exa</b> — installatienaam <code>exa</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [exa-agent](plugins/exa/skills/exa-agent) | Use Exa Agent for multi-step web research, list-building, enrichment, structured output, run continuation, and coverage validation. Exa Agent can access… |
 | [search](plugins/exa/skills/search) | Deep research powered by Exa. Use for lead generation, literature reviews, deep dives, competitive analysis, or any query where one search falls short,… |
 
 </details>
 
-<details><summary><b>executive-mentor</b> — 6 skills</summary>
+<details><summary><b>executive-mentor</b> — installatienaam <code>executive-mentor</code>, 6 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [board-prep](plugins/executive-mentor/skills/board-prep) | /em -board-prep — Board Meeting Preparation |
 | [challenge](plugins/executive-mentor/skills/challenge) | /em -challenge — Pre-Mortem Plan Analysis |
@@ -261,57 +369,57 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>feature-flags-architect</b> — 1 skill</summary>
+<details><summary><b>feature-flags-architect</b> — installatienaam <code>feature-flags-architect</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [feature-flags-architect](plugins/feature-flags-architect/skills/feature-flags-architect) | Use when adding, retiring, or auditing feature flags. Triggers on "add a flag", "ship behind a flag", "rollout plan", "kill switch", "stale flags", "flag… |
 
 </details>
 
-<details><summary><b>general-counsel-advisor</b> — 1 skill</summary>
+<details><summary><b>general-counsel-advisor</b> — installatienaam <code>general-counsel-advisor</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [general-counsel-advisor](plugins/general-counsel-advisor/skills/general-counsel-advisor) | General Counsel advisory for startups: contract review (MSA, SaaS, NDA, DPA, employment), IP strategy, term sheet decoding, and regulatory landscape mapping.… |
 
 </details>
 
-<details><summary><b>google-workspace-cli</b> — 1 skill</summary>
+<details><summary><b>google-workspace-cli</b> — installatienaam <code>google-workspace-cli</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [google-workspace-cli](plugins/google-workspace-cli/skills/google-workspace-cli) | Google Workspace administration via the gws CLI. Install, authenticate, and automate Gmail, Drive, Sheets, Calendar, Docs, Chat, and Tasks. Run security… |
 
 </details>
 
-<details><summary><b>helm-chart-builder</b> — 1 skill</summary>
+<details><summary><b>helm-chart-builder</b> — installatienaam <code>helm-chart-builder</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [helm-chart-builder](plugins/helm-chart-builder/skills/helm-chart-builder) | Helm chart development agent skill and plugin for Claude Code, Codex, Gemini CLI, Cursor, OpenClaw — chart scaffolding, values design, template patterns,… |
 
 </details>
 
-<details><summary><b>karpathy-coder</b> — 1 skill</summary>
+<details><summary><b>karpathy-coder</b> — installatienaam <code>karpathy-coder</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [karpathy-coder](plugins/karpathy-coder/skills/karpathy-coder) | Use when writing, reviewing, or committing code to enforce Karpathy's 4 coding principles — surface assumptions before coding, keep it simple, make surgical… |
 
 </details>
 
-<details><summary><b>kubernetes-operator</b> — 1 skill</summary>
+<details><summary><b>kubernetes-operator</b> — installatienaam <code>kubernetes-operator</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [kubernetes-operator](plugins/kubernetes-operator/skills/kubernetes-operator) | Use when building a Kubernetes Operator — custom controllers that reconcile CRD state. Triggers on "build an operator", "CRD design", "reconcile loop",… |
 
 </details>
 
-<details><summary><b>linkedin-skills</b> — 13 skills</summary>
+<details><summary><b>linkedin-skills</b> — installatienaam <code>linkedin-skills</code>, 13 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [linkedin-marketing](plugins/linkedin-skills) | Plan, draft, audit, and publish LinkedIn posts and comments. Use when the user wants to write a viral LinkedIn post, draft a comment or reply on any LinkedIn… |
 | [linkedin-comment-drafter](plugins/linkedin-skills/skills/linkedin-comment-drafter) | Draft a LinkedIn comment on someone else's post from its URL, or reshare (repost) it to your feed with optional commentary. Use when the user pastes a post URL… |
@@ -329,26 +437,26 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>live-rules</b> — 2 skills</summary>
+<details><summary><b>live-rules</b> — installatienaam <code>live-rules</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [add-rule](plugins/live-rules/skills/add-rule) | Create or edit a live-rules instruction in the project's atomic rule set. Use to add a rule, coding guideline, guardrail, convention, or automatic reminder. |
 | [manage-rules](plugins/live-rules/skills/manage-rules) | Inspect, audit, enable, or disable project live-rules. Use to list rules, check active instructions, explain an injected rule, or recover an atomic manifest. |
 
 </details>
 
-<details><summary><b>llm-wiki</b> — 1 skill</summary>
+<details><summary><b>llm-wiki</b> — installatienaam <code>llm-wiki</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [llm-wiki](plugins/llm-wiki/skills/llm-wiki) | Use when building or maintaining a persistent personal knowledge base (second brain) in Obsidian where an LLM incrementally ingests sources, updates… |
 
 </details>
 
-<details><summary><b>marketing</b> — 8 skills</summary>
+<details><summary><b>marketing</b> — installatienaam <code>marketing</code>, 8 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [brand-review](plugins/marketing/skills/brand-review) | Review content against your brand voice, style guide, and messaging pillars, flagging deviations by severity with specific before/after fixes. Use when… |
 | [campaign-plan](plugins/marketing/skills/campaign-plan) | Generate a full campaign brief with objectives, audience, messaging, channel strategy, content calendar, and success metrics. Use when planning a product… |
@@ -361,17 +469,17 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>pdf-viewer</b> — 1 skill</summary>
+<details><summary><b>pdf-viewer</b> — installatienaam <code>pdf-viewer</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [view-pdf](plugins/pdf-viewer/skills/view-pdf) | Interactive PDF viewer. Use when the user wants to open, show, or view a PDF and collaborate on it visually — annotate, highlight, stamp, fill form fields,… |
 
 </details>
 
-<details><summary><b>pm-skills</b> — 9 skills</summary>
+<details><summary><b>pm-skills</b> — installatienaam <code>pm-skills</code>, 9 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [atlassian-admin](plugins/pm-skills/skills/atlassian-admin) | Atlassian Administrator for managing and organizing Atlassian products (Jira, Confluence, Bitbucket, Trello), users, permissions, security, integrations,… |
 | [atlassian-templates](plugins/pm-skills/skills/atlassian-templates) | Atlassian Template and Files Creator/Modifier expert for creating, modifying, and managing Jira and Confluence templates, blueprints, custom layouts, reusable… |
@@ -385,9 +493,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>product-management</b> — 8 skills</summary>
+<details><summary><b>product-management</b> — installatienaam <code>product-management</code>, 8 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [competitive-brief](plugins/product-management/skills/competitive-brief) | Create a competitive analysis brief for one or more competitors or a feature area. Use when informing product strategy or feature prioritization, building… |
 | [metrics-review](plugins/product-management/skills/metrics-review) | Review and analyze product metrics with trend analysis and actionable insights. Use when running a weekly, monthly, or quarterly metrics review, investigating… |
@@ -400,9 +508,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>pw</b> — 10 skills</summary>
+<details><summary><b>pw</b> — installatienaam <code>pw</code>, 10 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [browserstack](plugins/pw/skills/browserstack) | Run tests on BrowserStack. Use when user mentions "browserstack", "cross-browser", "cloud testing", "browser matrix", "test on safari", "test on firefox", or… |
 | [coverage](plugins/pw/skills/coverage) | Analyze test coverage gaps. Use when user says "test coverage", "what's not tested", "coverage gaps", "missing tests", "coverage report", or "what needs… |
@@ -417,9 +525,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ra-qm-skills</b> — 14 skills</summary>
+<details><summary><b>ra-qm-skills</b> — installatienaam <code>ra-qm-skills</code>, 14 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [capa-officer](plugins/ra-qm-skills/skills/capa-officer) | CAPA system management for medical device QMS. Covers root cause analysis, corrective action planning, effectiveness verification, and CAPA metrics. Use for… |
 | [fda-consultant-specialist](plugins/ra-qm-skills/skills/fda-consultant-specialist) | FDA regulatory consultant for medical device companies. Provides 510(k)/PMA/De Novo pathway guidance, QSR (21 CFR 820) compliance, HIPAA assessments, and… |
@@ -438,17 +546,17 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>research-summarizer</b> — 1 skill</summary>
+<details><summary><b>research-summarizer</b> — installatienaam <code>research-summarizer</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [research-summarizer](plugins/research-summarizer/skills/research-summarizer) | Structured research summarization agent skill for non-dev users. Handles academic papers, web articles, reports, and documentation. Extracts key findings,… |
 
 </details>
 
-<details><summary><b>ruflo-adr</b> — 5 skills</summary>
+<details><summary><b>ruflo-adr</b> — installatienaam <code>ruflo-adr</code>, 5 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [adr-create](plugins/ruflo-adr/skills/adr-create) | Create a new Architecture Decision Record with sequential numbering and AgentDB registration |
 | [adr-index](plugins/ruflo-adr/skills/adr-index) | Build or rebuild the ADR index + dependency graph by running scripts/import.mjs (handles v3-style and plugin-style ADR formats; one Bash call vs hundreds of… |
@@ -458,9 +566,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-agent</b> — 4 skills</summary>
+<details><summary><b>ruflo-agent</b> — installatienaam <code>ruflo-agent</code>, 4 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [managed-agent](plugins/ruflo-agent/skills/managed-agent) | Run an Anthropic Claude Managed Agent — a cloud agent harness (container + filesystem + tools), the cloud counterpart of the local wasm-agent runtime |
 | [nested-subagents](plugins/ruflo-agent/skills/nested-subagents) | Spawn nested sub-agents (agents that spawn sub-agents, up to depth=5) via Claude Code's native Task tool — for context-managed deep delegation |
@@ -469,43 +577,43 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-agentdb</b> — 2 skills</summary>
+<details><summary><b>ruflo-agentdb</b> — installatienaam <code>ruflo-agentdb</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [agentdb-query](plugins/ruflo-agentdb/skills/agentdb-query) | Query AgentDB through the controller bridge -- semantic routing, hierarchical recall, causal graphs, context synthesis, pattern store/search |
 | [vector-search](plugins/ruflo-agentdb/skills/vector-search) | Vector search via embeddings_* (large-scale HNSW) and ruvllm_hnsw_* (WASM router for ≤11 hot patterns), with RaBitQ 1-bit quantization for 32× memory reduction |
 
 </details>
 
-<details><summary><b>ruflo-aidefence</b> — 2 skills</summary>
+<details><summary><b>ruflo-aidefence</b> — installatienaam <code>ruflo-aidefence</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [pii-detect](plugins/ruflo-aidefence/skills/pii-detect) | Detect and flag personally identifiable information (PII) in text, code, and configurations. Use before committing code, writing logs, storing data, or sending… |
 | [safety-scan](plugins/ruflo-aidefence/skills/safety-scan) | Scan inputs for prompt injection, unsafe content, and adversarial attacks using AIDefence. Use when processing untrusted input (user submissions, API payloads,… |
 
 </details>
 
-<details><summary><b>ruflo-arena</b> — 0 skills</summary>
+<details><summary><b>ruflo-arena</b> — installatienaam <code>ruflo-arena</code>, 0 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 
 </details>
 
-<details><summary><b>ruflo-autopilot</b> — 2 skills</summary>
+<details><summary><b>ruflo-autopilot</b> — installatienaam <code>ruflo-autopilot</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [autopilot-loop](plugins/ruflo-autopilot/skills/autopilot-loop) | Run an autonomous /loop iteration -- check progress, work on next task, schedule next wake |
 | [autopilot-predict](plugins/ruflo-autopilot/skills/autopilot-predict) | Use learned patterns and current state to predict the optimal next action |
 
 </details>
 
-<details><summary><b>ruflo-browser</b> — 10 skills</summary>
+<details><summary><b>ruflo-browser</b> — installatienaam <code>ruflo-browser</code>, 10 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [browser-auth-flow](plugins/ruflo-browser/skills/browser-auth-flow) | Probe a site's authentication flow for redirect leaks, missing CSRF, weak session cookies, and OAuth misconfiguration; produces an auth findings.md |
 | [browser-extract](plugins/ruflo-browser/skills/browser-extract) | Extract structured data via stored browser-templates or one-shot DOM queries, with mandatory AIDefence PII + prompt-injection gates before content reaches the… |
@@ -520,9 +628,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-core</b> — 4 skills</summary>
+<details><summary><b>ruflo-core</b> — installatienaam <code>ruflo-core</code>, 4 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [discover-plugins](plugins/ruflo-core/skills/discover-plugins) | Discover and recommend ruflo plugins based on your workflow, installed MCP tools, and current task |
 | [init-project](plugins/ruflo-core/skills/init-project) | Initialize a new Ruflo project with MCP tools, hooks, and agent configuration. Use when setting up Ruflo in a fresh repo, or when the user says "init ruflo",… |
@@ -531,9 +639,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-cost-tracker</b> — 20 skills</summary>
+<details><summary><b>ruflo-cost-tracker</b> — installatienaam <code>ruflo-cost-tracker</code>, 20 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [cost-anomaly](plugins/ruflo-cost-tracker/skills/cost-anomaly) | MAD-based outlier detection on session spend. Robust to the very outliers it hunts (unlike mean+sigma). Surfaces specific anomalous sessions with modified-z… |
 | [cost-benchmark](plugins/ruflo-cost-tracker/skills/cost-benchmark) | Run the corpus benchmark — booster locally, optional Gemini/Sonnet/Opus baselines — and persist a verifiable measured-vs-claimed table |
@@ -558,18 +666,18 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-daa</b> — 2 skills</summary>
+<details><summary><b>ruflo-daa</b> — installatienaam <code>ruflo-daa</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [cognitive-pattern](plugins/ruflo-daa/skills/cognitive-pattern) | Define and manage cognitive patterns for agent reasoning and decision-making |
 | [daa-agent](plugins/ruflo-daa/skills/daa-agent) | Create and adapt Dynamic Agentic Architecture agents that learn and evolve |
 
 </details>
 
-<details><summary><b>ruflo-ddd</b> — 3 skills</summary>
+<details><summary><b>ruflo-ddd</b> — installatienaam <code>ruflo-ddd</code>, 3 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [ddd-aggregate](plugins/ruflo-ddd/skills/ddd-aggregate) | Scaffold an aggregate root with entity, value objects, repository interface, domain events, and test stubs. Use when adding a new aggregate to an existing… |
 | [ddd-context](plugins/ruflo-ddd/skills/ddd-context) | Create and manage a DDD bounded context with standard directory structure. Use when starting a new subdomain, splitting a monolith into bounded contexts, or… |
@@ -577,18 +685,18 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-docs</b> — 2 skills</summary>
+<details><summary><b>ruflo-docs</b> — installatienaam <code>ruflo-docs</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [api-docs](plugins/ruflo-docs/skills/api-docs) | Generate API documentation from source code with JSDoc and OpenAPI support |
 | [doc-gen](plugins/ruflo-docs/skills/doc-gen) | Generate and maintain documentation with drift detection. Use when the user asks to write/update/refresh docs, detect doc drift against code, or schedule… |
 
 </details>
 
-<details><summary><b>ruflo-federation</b> — 3 skills</summary>
+<details><summary><b>ruflo-federation</b> — installatienaam <code>ruflo-federation</code>, 3 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [federation-audit](plugins/ruflo-federation/skills/federation-audit) | Query federation audit logs with compliance filtering |
 | [federation-init](plugins/ruflo-federation/skills/federation-init) | Initialize federation on this node — generate keypair and configure peers |
@@ -596,9 +704,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-goals</b> — 5 skills</summary>
+<details><summary><b>ruflo-goals</b> — installatienaam <code>ruflo-goals</code>, 5 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [deep-research](plugins/ruflo-goals/skills/deep-research) | Orchestrate multi-phase deep research with web search, memory retrieval, pattern matching, and synthesis into structured findings |
 | [dossier-collect](plugins/ruflo-goals/skills/dossier-collect) | Build a graph-structured dossier on a seed entity via parallel fan-out + recursive expansion across web, memory, knowledge-graph, codebase, ADR index, and git… |
@@ -608,16 +716,16 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-graph-intelligence</b> — 0 skills</summary>
+<details><summary><b>ruflo-graph-intelligence</b> — installatienaam <code>ruflo-graph-intelligence</code>, 0 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 
 </details>
 
-<details><summary><b>ruflo-intelligence</b> — 3 skills</summary>
+<details><summary><b>ruflo-intelligence</b> — installatienaam <code>ruflo-intelligence</code>, 3 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [intelligence-route](plugins/ruflo-intelligence/skills/intelligence-route) | Route tasks via the 3-tier model selector and learned patterns; emits a routing rationale via hooks_explain |
 | [intelligence-transfer](plugins/ruflo-intelligence/skills/intelligence-transfer) | Publish or fetch learned patterns across projects via IPFS (Pinata) -- the cross-project pattern transfer that hooks_transfer enables |
@@ -625,9 +733,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-iot-cognitum</b> — 5 skills</summary>
+<details><summary><b>ruflo-iot-cognitum</b> — installatienaam <code>ruflo-iot-cognitum</code>, 5 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [iot-anomalies](plugins/ruflo-iot-cognitum/skills/iot-anomalies) | Detect and classify telemetry anomalies on Cognitum Seed devices. Use when investigating a device that's reporting odd metrics, before approving a firmware… |
 | [iot-firmware](plugins/ruflo-iot-cognitum/skills/iot-firmware) | Orchestrate firmware rollouts with canary deployment and anomaly-gated advancement |
@@ -637,45 +745,45 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-jujutsu</b> — 2 skills</summary>
+<details><summary><b>ruflo-jujutsu</b> — installatienaam <code>ruflo-jujutsu</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [diff-analyze](plugins/ruflo-jujutsu/skills/diff-analyze) | Analyze git diffs for risk scoring, reviewer recommendations, and change classification. Use when preparing a PR, reviewing a large or cross-module change, or… |
 | [git-workflow](plugins/ruflo-jujutsu/skills/git-workflow) | Advanced git workflows with branch management, conflict resolution, and PR lifecycle |
 
 </details>
 
-<details><summary><b>ruflo-knowledge-graph</b> — 2 skills</summary>
+<details><summary><b>ruflo-knowledge-graph</b> — installatienaam <code>ruflo-knowledge-graph</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [kg-extract](plugins/ruflo-knowledge-graph/skills/kg-extract) | Extract entities and relations from source files to build a knowledge graph |
 | [kg-traverse](plugins/ruflo-knowledge-graph/skills/kg-traverse) | Pathfinder traversal of the knowledge graph starting from a seed entity |
 
 </details>
 
-<details><summary><b>ruflo-loop-workers</b> — 2 skills</summary>
+<details><summary><b>ruflo-loop-workers</b> — installatienaam <code>ruflo-loop-workers</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [cron-schedule](plugins/ruflo-loop-workers/skills/cron-schedule) | Schedule persistent background workers via CronCreate |
 | [loop-worker](plugins/ruflo-loop-workers/skills/loop-worker) | Run Ruflo background workers using Claude Code native /loop scheduling |
 
 </details>
 
-<details><summary><b>ruflo-market-data</b> — 2 skills</summary>
+<details><summary><b>ruflo-market-data</b> — installatienaam <code>ruflo-market-data</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [market-ingest](plugins/ruflo-market-data/skills/market-ingest) | Ingest and normalize market data into OHLCV vectors with HNSW indexing |
 | [market-pattern](plugins/ruflo-market-data/skills/market-pattern) | Detect and classify candlestick patterns from ingested OHLCV data |
 
 </details>
 
-<details><summary><b>ruflo-metaharness</b> — 13 skills</summary>
+<details><summary><b>ruflo-metaharness</b> — installatienaam <code>ruflo-metaharness</code>, 13 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [harness-bench](plugins/ruflo-metaharness/skills/harness-bench) | Manage `@metaharness/darwin` bench suites — `bench create <repo>` scaffolds a JSON suite from a repo's test corpus; `bench verify <suite.json>` checks suite… |
 | [harness-drift-from-history](plugins/ruflo-metaharness/skills/harness-drift-from-history) | One-command drift detection. Composes audit-list + oia-audit + audit-trend into a single primitive — finds the most recent audit in `metaharness-audit`… |
@@ -693,18 +801,18 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-migrations</b> — 2 skills</summary>
+<details><summary><b>ruflo-migrations</b> — installatienaam <code>ruflo-migrations</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [migrate-create](plugins/ruflo-migrations/skills/migrate-create) | Create a new sequentially numbered database migration with up/down SQL files |
 | [migrate-validate](plugins/ruflo-migrations/skills/migrate-validate) | Validate pending migrations for foreign key consistency, rollback safety, and best practices |
 
 </details>
 
-<details><summary><b>ruflo-neural-trader</b> — 9 skills</summary>
+<details><summary><b>ruflo-neural-trader</b> — installatienaam <code>ruflo-neural-trader</code>, 9 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [trader-backtest](plugins/ruflo-neural-trader/skills/trader-backtest) | Run a historical backtest using npx neural-trader with Rust/NAPI engine (8-19x faster) and walk-forward validation; Ed25519-sign the result for paper→live… |
 | [trader-cloud-backtest](plugins/ruflo-neural-trader/skills/trader-cloud-backtest) | Run a heavy neural-trader job (long walk-forward, big Monte-Carlo, parameter sweep, model training) on the Anthropic Managed Agent cloud runtime instead of… |
@@ -718,36 +826,36 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-observability</b> — 2 skills</summary>
+<details><summary><b>ruflo-observability</b> — installatienaam <code>ruflo-observability</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [observe-metrics](plugins/ruflo-observability/skills/observe-metrics) | Aggregate and display system metrics with anomaly detection for a time period |
 | [observe-trace](plugins/ruflo-observability/skills/observe-trace) | Trace agent execution by collecting spans and building a trace tree for a task |
 
 </details>
 
-<details><summary><b>ruflo-plugin-creator</b> — 2 skills</summary>
+<details><summary><b>ruflo-plugin-creator</b> — installatienaam <code>ruflo-plugin-creator</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [create-plugin](plugins/ruflo-plugin-creator/skills/create-plugin) | Scaffold a new Claude Code plugin with proper directory structure, plugin.json, skills, commands, and agents |
 | [validate-plugin](plugins/ruflo-plugin-creator/skills/validate-plugin) | Validate a Claude Code plugin structure, frontmatter, and MCP tool references |
 
 </details>
 
-<details><summary><b>ruflo-rag-memory</b> — 2 skills</summary>
+<details><summary><b>ruflo-rag-memory</b> — installatienaam <code>ruflo-rag-memory</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [memory-bridge](plugins/ruflo-rag-memory/skills/memory-bridge) | Bridge Claude Code auto-memory into AgentDB with ONNX embeddings, deduplicate, and enable unified cross-project search |
 | [memory-search](plugins/ruflo-rag-memory/skills/memory-search) | SOTA semantic search — hybrid (sparse+dense), Graph RAG multi-hop, MMR diversity reranking, recency weighting |
 
 </details>
 
-<details><summary><b>ruflo-ruvector</b> — 4 skills</summary>
+<details><summary><b>ruflo-ruvector</b> — installatienaam <code>ruflo-ruvector</code>, 4 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [vector-cluster](plugins/ruflo-ruvector/skills/vector-cluster) | Cluster code by graph community detection via npx ruvector@0.2.25 hooks graph-cluster (spectral / Louvain) |
 | [vector-embed](plugins/ruflo-ruvector/skills/vector-embed) | Generate embeddings via npx ruvector@0.2.25 embed text (ONNX all-MiniLM-L6-v2, 384-dim), normalize, and store in HNSW index |
@@ -756,36 +864,36 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-ruvllm</b> — 2 skills</summary>
+<details><summary><b>ruflo-ruvllm</b> — installatienaam <code>ruflo-ruvllm</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [chat-format](plugins/ruflo-ruvllm/skills/chat-format) | Format prompts for different LLM providers with chat templates and HNSW-powered context retrieval |
 | [llm-config](plugins/ruflo-ruvllm/skills/llm-config) | Configure RuVLLM local inference with model selection, MicroLoRA fine-tuning, and SONA adaptation |
 
 </details>
 
-<details><summary><b>ruflo-rvf</b> — 2 skills</summary>
+<details><summary><b>ruflo-rvf</b> — installatienaam <code>ruflo-rvf</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [rvf-manage](plugins/ruflo-rvf/skills/rvf-manage) | Manage RVF (Ruflo Vector Format) files for portable agent memory and cross-platform transfer |
 | [session-persist](plugins/ruflo-rvf/skills/session-persist) | Persist and restore agent sessions across conversations with state snapshots |
 
 </details>
 
-<details><summary><b>ruflo-security-audit</b> — 2 skills</summary>
+<details><summary><b>ruflo-security-audit</b> — installatienaam <code>ruflo-security-audit</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [dependency-check](plugins/ruflo-security-audit/skills/dependency-check) | Scan project dependencies for known vulnerabilities and CVEs. Use when auditing third-party packages, before releases, after `npm install`/lockfile changes, or… |
 | [security-scan](plugins/ruflo-security-audit/skills/security-scan) | Run full security scans on the codebase using Ruflo security tools. Use when reviewing PRs for security regressions, auditing auth/input-handling code, before… |
 
 </details>
 
-<details><summary><b>ruflo-sparc</b> — 3 skills</summary>
+<details><summary><b>ruflo-sparc</b> — installatienaam <code>ruflo-sparc</code>, 3 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [sparc-implement](plugins/ruflo-sparc/skills/sparc-implement) | Run the SPARC Pseudocode and Architecture phases (2 and 3) — write algorithm pseudocode, design module boundaries and API contracts, then implement |
 | [sparc-refine](plugins/ruflo-sparc/skills/sparc-refine) | Run the SPARC Refinement and Completion phases — review code, improve test coverage, validate against specification, and generate documentation |
@@ -793,18 +901,18 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-swarm</b> — 2 skills</summary>
+<details><summary><b>ruflo-swarm</b> — installatienaam <code>ruflo-swarm</code>, 2 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [monitor-stream](plugins/ruflo-swarm/skills/monitor-stream) | Stream live swarm events using the Monitor tool for real-time observability |
 | [swarm-init](plugins/ruflo-swarm/skills/swarm-init) | Initialize a multi-agent swarm with anti-drift configuration. Use when starting a complex multi-file task that needs 3+ coordinated agents (feature… |
 
 </details>
 
-<details><summary><b>ruflo-testgen</b> — 3 skills</summary>
+<details><summary><b>ruflo-testgen</b> — installatienaam <code>ruflo-testgen</code>, 3 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [tdd-repair](plugins/ruflo-testgen/skills/tdd-repair) | Test-Driven Repair — given a failing test, spawn a bounded headless `claude -p` (Read/Edit/Bash only) that makes the test pass without modifying it. Modeled on… |
 | [tdd-workflow](plugins/ruflo-testgen/skills/tdd-workflow) | TDD London School workflow -- mock-first, outside-in test development |
@@ -812,9 +920,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>ruflo-workflows</b> — 5 skills</summary>
+<details><summary><b>ruflo-workflows</b> — installatienaam <code>ruflo-workflows</code>, 5 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [gaia-architecture-comparison](plugins/ruflo-workflows/skills/gaia-architecture-comparison) | Side-by-side comparison of ruflo vs HAL vs other GAIA harnesses — capability gaps, design decisions, and improvement roadmap |
 | [gaia-debugging](plugins/ruflo-workflows/skills/gaia-debugging) | Diagnose why a GAIA question failed — extract trace, classify failure mode, and propose a fix. Use when a GAIA benchmark run reports a failed/incorrect task_id… |
@@ -824,9 +932,9 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>self-improving-agent</b> — 6 skills</summary>
+<details><summary><b>self-improving-agent</b> — installatienaam <code>si</code>, 6 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [extract](plugins/self-improving-agent/skills/extract) | Turn a proven pattern or debugging solution into a standalone reusable skill with SKILL.md, reference docs, and examples. |
 | [promote](plugins/self-improving-agent/skills/promote) | Graduate a proven pattern from auto-memory (MEMORY.md) to CLAUDE.md or .claude/rules/ for permanent enforcement. |
@@ -837,17 +945,17 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>slo-architect</b> — 1 skill</summary>
+<details><summary><b>slo-architect</b> — installatienaam <code>slo-architect</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [slo-architect](plugins/slo-architect/skills/slo-architect) | Use when defining, reviewing, or operating SLOs/SLIs/error budgets. Triggers on "define an SLO", "what should our SLO be", "error budget", "burn rate", "SLI",… |
 
 </details>
 
-<details><summary><b>small-business</b> — 44 skills</summary>
+<details><summary><b>small-business</b> — installatienaam <code>small-business</code>, 44 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [ad-manager](plugins/small-business/skills/ad-manager) | The ads consultant that becomes an ads agent. Reads paid-ad performance natively through the TikTok Ads connector, or via a build-connector Zapier connection… |
 | [ap-processor](plugins/small-business/skills/ap-processor) | Works the bill pile end to end: reads bills and vendor statements out of the AP inbox or from uploaded PDFs and phone photos, pulls out vendor, amount, due… |
@@ -896,25 +1004,25 @@ Third-party plugins keep their original licenses (see each plugin's `LICENSE` / 
 
 </details>
 
-<details><summary><b>statistical-analyst</b> — 1 skill</summary>
+<details><summary><b>statistical-analyst</b> — installatienaam <code>statistical-analyst</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [statistical-analyst](plugins/statistical-analyst/skills/statistical-analyst) | Run hypothesis tests, analyze A/B experiment results, calculate sample sizes, and interpret statistical significance with effect sizes. Use when you need to… |
 
 </details>
 
-<details><summary><b>terraform-patterns</b> — 1 skill</summary>
+<details><summary><b>terraform-patterns</b> — installatienaam <code>terraform-patterns</code>, 1 skill</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [terraform-patterns](plugins/terraform-patterns/skills/terraform-patterns) | Terraform infrastructure-as-code agent skill and plugin for Claude Code, Codex, Gemini CLI, Cursor, OpenClaw. Covers module design patterns, state management… |
 
 </details>
 
-<details><summary><b>wix</b> — 46 skills</summary>
+<details><summary><b>wix</b> — installatienaam <code>wix</code>, 46 skills</summary>
 
-| Skill | What it does |
+| Skill | Wat het doet |
 |---|---|
 | [wix-app](plugins/wix/skills/wix-app) | Build and review Wix CLI app extensions — dashboard pages, modals, plugins, menu plugins, custom element widgets, Editor React components, site plugins,… |
 | [wix-auth](plugins/wix/skills/wix-auth) | Authenticate with Wix to obtain an access token for calling Wix APIs. Use when an agent needs a valid Wix access token and has none, or when the stored token… |
